@@ -11,7 +11,6 @@
       margin: 0;
       padding: 0;
     }
-
     .chat-header {
       background: #ff7fa8;
       color: white;
@@ -21,7 +20,6 @@
       font-weight: bold;
       border-radius: 0 0 20px 20px;
     }
-
     .chat-container {
       display: flex;
       flex-direction: column;
@@ -29,7 +27,6 @@
       overflow-y: auto;
       padding: 10px;
     }
-
     .message {
       margin: 8px;
       padding: 10px 15px;
@@ -37,24 +34,20 @@
       max-width: 80%;
       line-height: 1.4;
     }
-
     .user-message {
       background: #ffb5cc;
       align-self: flex-end;
     }
-
     .bot-message {
       background: #ffe1eb;
       align-self: flex-start;
     }
-
     .input-area {
       display: flex;
       padding: 10px;
       background: white;
       border-top: 1px solid #ddd;
     }
-
     input {
       flex: 1;
       padding: 10px;
@@ -63,7 +56,6 @@
       border-radius: 10px;
       background: #ffeaf1;
     }
-
     button {
       margin-left: 10px;
       background: #ff7fa8;
@@ -73,18 +65,17 @@
       padding: 10px 15px;
       cursor: pointer;
     }
-
     button:hover {
       background: #ff5e94;
     }
   </style>
 </head>
 <body>
-  <div class="chat-header">Chat with HealthBot</div>
+  <div class="chat-header">Chat dengan HealthBot 🩷</div>
   <div class="chat-container" id="chat-container">
     <div class="message bot-message">
-      Halo, saya adalah <b>HealthBot</b> — asisten sederhana seputar kesehatan.<br>
-      Saya dibuat dan diprogram oleh <b>Tuan Rivaldo</b>. Senang bisa membantu kamu hari ini!
+      Halo, saya <b>HealthBot</b> — asisten sederhana seputar kesehatan.<br>
+      Saya dibuat oleh <b>Tuan Rivaldo</b>. Senang bisa membantu kamu hari ini!
     </div>
   </div>
 
@@ -94,7 +85,7 @@
   </div>
 
   <script>
-    const API_KEY = "AIzaSyANsfG7PTcUmUmZFxjBmQKJhRt613VtOPE"; // ganti dengan API Key dari Google AI Studio
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwo1sZ66jszEHGomvBWi63tDG2lpqUYRvcKaE8VWklJshFZn1-pRWpZ4X3QR0QXpod0/exec";
 
     async function sendMessage() {
       const input = document.getElementById("user-input");
@@ -102,49 +93,33 @@
       const userText = input.value.trim();
       if (!userText) return;
 
-      // tampilkan pesan pengguna
       const userMessage = document.createElement("div");
       userMessage.classList.add("message", "user-message");
       userMessage.textContent = userText;
       chat.appendChild(userMessage);
       input.value = "";
 
-      // tampilkan pesan "sedang memproses"
       const botMessage = document.createElement("div");
       botMessage.classList.add("message", "bot-message");
-      botMessage.textContent = "Sebentar ya, saya sedang memikirkan jawabannya...";
+      botMessage.textContent = "⏳ Sedang berpikir...";
       chat.appendChild(botMessage);
       chat.scrollTop = chat.scrollHeight;
 
-      // panggil Gemini API
       try {
-        const response = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: `Kamu adalah HealthBot, asisten kesehatan virtual yang ramah, sopan, dan informatif. Jawablah pertanyaan pengguna dengan bahasa ringan dan mudah dipahami.\n\nPengguna: ${userText}`
-                    }
-                  ]
-                }
-              ]
-            })
-          }
-        );
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText }),
+        });
 
         const data = await response.json();
-        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak bisa menjawab sekarang 😅";
-        botMessage.textContent = reply;
-        chat.scrollTop = chat.scrollHeight;
+        botMessage.textContent = data.reply || "Maaf, saya tidak mengerti 😅";
       } catch (error) {
         console.error(error);
-        botMessage.textContent = "Terjadi kesalahan saat menghubungi server. Coba lagi nanti ya.";
+        botMessage.textContent = "Terjadi kesalahan saat menghubungi server ⚠️";
       }
+
+      chat.scrollTop = chat.scrollHeight;
     }
   </script>
 </body>
