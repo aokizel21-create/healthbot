@@ -3,150 +3,138 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HealthBot AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>HealthBot</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(180deg, #ffd8e0 0%, #fff 100%);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      background: linear-gradient(to bottom, #ffd6e7, #fff);
       margin: 0;
+      padding: 0;
     }
 
-    header {
-      background-color: #ff8fb1;
+    .chat-header {
+      background: #ff7fa8;
       color: white;
-      text-align: center;
       padding: 15px;
-      font-weight: 600;
+      text-align: center;
       font-size: 18px;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
+      font-weight: bold;
+      border-radius: 0 0 20px 20px;
     }
 
-    #chat {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
+    .chat-container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      height: 85vh;
+      overflow-y: auto;
+      padding: 10px;
     }
 
-    .bot, .user {
+    .message {
+      margin: 8px;
+      padding: 10px 15px;
+      border-radius: 15px;
       max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 20px;
-      font-size: 15px;
-      line-height: 1.4em;
-      word-wrap: break-word;
+      line-height: 1.4;
     }
 
-    .bot {
-      background-color: #ffe6eb;
-      align-self: flex-start;
-    }
-
-    .user {
-      background-color: #ffb6c9;
+    .user-message {
+      background: #ffb5cc;
       align-self: flex-end;
-      color: #fff;
+    }
+
+    .bot-message {
+      background: #ffe1eb;
+      align-self: flex-start;
     }
 
     .input-area {
       display: flex;
       padding: 10px;
-      background-color: #fff;
-      border-top: 1px solid #eee;
+      background: white;
+      border-top: 1px solid #ddd;
     }
 
-    .input-area input {
+    input {
       flex: 1;
       padding: 10px;
-      border-radius: 20px;
-      border: 1px solid #ffb6c9;
-      outline: none;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .input-area button {
-      background-color: #ff8fb1;
-      color: #fff;
       border: none;
-      border-radius: 20px;
-      padding: 10px 16px;
-      margin-left: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-
-    .input-area button:hover {
-      background-color: #ff709b;
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: #ffb6c9;
+      outline: none;
       border-radius: 10px;
+      background: #ffeaf1;
+    }
+
+    button {
+      margin-left: 10px;
+      background: #ff7fa8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ff5e94;
     }
   </style>
 </head>
 <body>
-  <header>Chat with HealthBot 🤖</header>
-
-  <div id="chat">
-    <div class="bot">Halo, saya adalah <b>HealthBot</b> — asisten sederhana seputar kesehatan 💗</div>
+  <div class="chat-header">Chat with HealthBot</div>
+  <div class="chat-container" id="chat-container">
+    <div class="message bot-message">
+      Halo, saya adalah <b>HealthBot</b> — asisten sederhana seputar kesehatan.<br>
+      Saya dibuat dan diprogram oleh <b>Tuan Rivaldo</b>. Senang bisa membantu kamu hari ini!
+    </div>
   </div>
 
   <div class="input-area">
-    <input type="text" id="userInput" placeholder="Tulis pesan di sini..." />
+    <input id="user-input" type="text" placeholder="Tulis pesan di sini..." />
     <button onclick="sendMessage()">Kirim</button>
   </div>
 
   <script>
-    const chat = document.getElementById('chat');
-    const input = document.getElementById('userInput');
-
     async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      appendMessage('user', text);
-      input.value = '';
+      const input = document.getElementById("user-input");
+      const chat = document.getElementById("chat-container");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      const userMessage = document.createElement("div");
+      userMessage.classList.add("message", "user-message");
+      userMessage.textContent = userText;
+      chat.appendChild(userMessage);
+      input.value = "";
+
+      const botMessage = document.createElement("div");
+      botMessage.classList.add("message", "bot-message");
+      botMessage.textContent = "Sebentar ya, saya sedang memproses pertanyaan kamu...";
+      chat.appendChild(botMessage);
       chat.scrollTop = chat.scrollHeight;
 
-      // Simulasi panggilan ke AI API dummy
-      appendMessage('bot', 'Sebentar ya, saya sedang memproses pertanyaan kamu... 💭');
-      const reply = await getAIReply(text);
-      document.querySelectorAll('.bot').pop;
-      setTimeout(() => {
-        appendMessage('bot', reply);
-      }, 1000);
-    }
-
-    function appendMessage(sender, text) {
-      const msg = document.createElement('div');
-      msg.className = sender;
-      msg.innerHTML = text;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    async function getAIReply(userText) {
       try {
-        const res = await fetch("https://api.monkedev.com/fun/chat?msg=" + encodeURIComponent(userText));
-        const data = await res.json();
-        // API ini public dan tidak butuh key
-        const rawReply = data.response || "Maaf, saya tidak bisa menjawab itu 😅";
-        // Sopan-ramah filter
-        const reply = rawReply.replace("Monke", "HealthBot");
-        return reply;
-      } catch (e) {
-        return "Maaf, koneksi sedang lambat. Coba lagi ya 🌸";
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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"
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: "Kamu adalah HealthBot, asisten kesehatan yang sopan, ramah, dan menjelaskan dengan bahasa ringan tapi informatif. Kamu dibuat oleh Tuan Rivaldo." },
+              { role: "user", content: userText }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        const data = await response.json();
+        botMessage.textContent = data.choices?.[0]?.message?.content?.trim() || "Maaf, saya tidak mengerti pertanyaan kamu.";
+        chat.scrollTop = chat.scrollHeight;
+      } catch (error) {
+        console.error(error);
+        botMessage.textContent = "Terjadi kesalahan saat menghubungi server. Coba lagi nanti ya.";
       }
     }
   </script>
